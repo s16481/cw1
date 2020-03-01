@@ -10,6 +10,16 @@ namespace Cw1
     {
         public static async Task Main(string[] args)
         {
+            if(args.Length == 0)
+            {
+                throw new ArgumentNullException();
+            }
+            Regex urlRegex = new Regex(@"^http(s)?://([\w-]+.)+[\w-]+(/[\w- ./?%&=])?$");
+            MatchCollection urlMatches = urlRegex.Matches(args[0]);
+            if(urlMatches.Count == 0)
+            {
+                throw new ArgumentException();
+            }
             foreach(var a in args)
             {
                 Console.WriteLine(a);
