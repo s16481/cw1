@@ -35,12 +35,23 @@ namespace Cw1
         {
             var httpClient = new HttpClient();
             var listOfEmails = new List<string>();
-            var response = await httpClient.GetAsync(url);
-            Regex emailRegex = new Regex(@"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*", RegexOptions.IgnoreCase);
-            MatchCollection emailMatches = emailRegex.Matches(response.Content.ReadAsStringAsync().Result);
-            foreach (var emailMatche in emailMatches)
+            HttpResponseMessage response;
+            try {
+                response = await httpClient.GetAsync(url);
+                Regex emailRegex = new Regex(@"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*", RegexOptions.IgnoreCase);
+                MatchCollection emailMatches = emailRegex.Matches(response.Content.ReadAsStringAsync().Result);
+                foreach (var emailMatche in emailMatches)
+                {
+                    listOfEmails.Add(emailMatche.ToString());
+                }
+            }   
+            catch(Exception)
             {
-                listOfEmails.Add(emailMatche.ToString());
+                Console.WriteLine("Błąd w czasie pobierania strony");
+            }
+            finally
+            {
+                httpClient.Dispose();
             }
             return listOfEmails;
         } 
