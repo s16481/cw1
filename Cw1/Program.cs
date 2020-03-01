@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,10 +26,29 @@ namespace Cw1
             {
                 Console.WriteLine(a);
             }
-            var emails = await GetEmails(args[0]);
-            foreach(var email in emails)
+
+            try
             {
-                Console.WriteLine(email);
+                var emails = await GetEmails(args[0]);
+                if (emails.Count == 0)
+                {
+                    throw new NoMachEmailsException();
+                }
+                else
+                {
+                    foreach (var email in emails.Distinct())
+                    {
+                        Console.WriteLine(email);
+                    }
+                }
+            }
+            catch (HttpRequestException)
+            {
+                Console.WriteLine("Błąd w czasie pobierania strony");
+            }
+            catch (NoMachEmailsException)
+            {
+                Console.WriteLine("Nie znaleziono adresów email");
             }
         }
 
@@ -35,24 +56,21 @@ namespace Cw1
         {
             var httpClient = new HttpClient();
             var listOfEmails = new List<string>();
-            HttpResponseMessage response;
-            try {
-                response = await httpClient.GetAsync(url);
+            try
+            {
+                var response = await httpClient.GetAsync(url);
                 Regex emailRegex = new Regex(@"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*", RegexOptions.IgnoreCase);
                 MatchCollection emailMatches = emailRegex.Matches(response.Content.ReadAsStringAsync().Result);
                 foreach (var emailMatche in emailMatches)
                 {
                     listOfEmails.Add(emailMatche.ToString());
                 }
-            }   
-            catch(Exception)
-            {
-                Console.WriteLine("Błąd w czasie pobierania strony");
             }
             finally
             {
                 httpClient.Dispose();
             }
+
             return listOfEmails;
         } 
     }
