@@ -14,8 +14,7 @@ namespace Cw1
             {
                 Console.WriteLine(a);
             }
-            //var emails = await GetEmails(args[0]);
-            var emails = await GetEmails("https://www.pja.edu.pl/");
+            var emails = await GetEmails(args[0]);
             foreach(var email in emails)
             {
                 Console.WriteLine(email);
